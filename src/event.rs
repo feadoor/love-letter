@@ -18,6 +18,9 @@
 //!   - It is player X's turn
 //!   - Game ends
 
+#[cfg(feature = "serde")]
+use serde::{Serialize, Deserialize};
+
 use crate::card::Card;
 
 /// An event that happens as a result of an action in a game of Love Letter.

@@ -4,6 +4,9 @@
 //! playing a card. Drawing a card is not considered an `Action` - instead, that is viewed as if the
 //! player is being dealt a card by the game. Beginning a new game is also an `Action`.
 
+#[cfg(feature = "serde")]
+use serde::{Serialize, Deserialize};
+
 use crate::card::Card;
 
 /// An external action that can be taken to progress a game of Love Letter.
@@ -15,10 +18,7 @@ pub enum Action {
     StartGame { players: usize },
 
     /// One of the players plays a card.
-    PlayCard {
-        player_idx: usize,
-        details: PlayCardDetails,
-    },
+    PlayCard { player_idx: usize, details: PlayCardDetails },
 }
 
 /// Details about a play taken by one of the players.

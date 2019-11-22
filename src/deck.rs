@@ -28,7 +28,6 @@ impl Deck {
         }
     }
 
-
     /// Checks if the deck is empty
     pub fn is_empty(&self) -> bool {
         self.cards.is_empty()

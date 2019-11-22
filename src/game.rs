@@ -12,6 +12,9 @@
 use std::error::Error;
 use std::fmt;
 
+#[cfg(feature = "serde")]
+use serde::{Serialize, Deserialize};
+
 use crate::action::{Action, PlayCardDetails};
 use crate::card::Card;
 use crate::deck::Deck;
@@ -436,7 +439,7 @@ impl Game {
         ).collect::<Vec<_>>();
 
         // Sort the scores and return each player who has the highest score
-        scores.sort(); let high_score = scores[0];
+        scores.sort(); let high_score = scores[scores.len() - 1];
         scores.iter().filter(|s| s.0 == high_score.0 && s.1 == high_score.1).map(|s| s.2).collect()
     }
 }

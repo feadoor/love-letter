@@ -1,5 +1,8 @@
 //! Definitions of the cards contained in the game of Love Letter.
 
+#[cfg(feature = "serde")]
+use serde::{Serialize, Deserialize};
+
 /// A single card belonging to a Love Letter deck.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
