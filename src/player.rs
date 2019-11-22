@@ -37,7 +37,7 @@ impl Player {
     }
 
     /// Take the specified card from this player.
-    pub fn discard_card(&mut self, card: Card) -> Result<(), ()> {
+    pub fn play_card(&mut self, card: Card) -> Result<(), ()> {
         match self.hand.iter().position(|&c| c == card) {
             Some(index) => {
                 self.hand.remove(index);
@@ -53,9 +53,16 @@ impl Player {
         self.hand.contains(&card)
     }
 
-    /// Get a slice of the cards in this player's hand.
-    pub fn hand(&self) -> &[Card] {
-        &self.hand
+    /// Get the single card that this player is holding.
+    pub fn card(&self) -> Option<Card> {
+        if self.hand.len() == 1 { self.hand.first().map(|c| *c) } else { None }
+    }
+
+    /// Get the single card that this player is holding and remove it from their hand.
+    pub fn take_card(&mut self) -> Option<Card> {
+        let card = self.card();
+        if card.is_some() { self.hand.clear(); }
+        card
     }
 
     /// Check if this player is currently protected by a Handmaid.
