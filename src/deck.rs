@@ -28,6 +28,12 @@ impl Deck {
         }
     }
 
+
+    /// Checks if the deck is empty
+    pub fn is_empty(&self) -> bool {
+        self.cards.is_empty()
+    }
+
     /// Shuffles the cards in this `Deck` into a random order.
     pub fn shuffle(&mut self) {
         let mut rng = thread_rng();

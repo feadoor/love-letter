@@ -160,6 +160,25 @@ impl Game {
             _ => Ok(Vec::new()),
         }?);
 
+        // Check if there is only one player left standing
+        let active_players = self.active_players();
+        if active_players.len() == 1 {
+            events.push(self.end_game_with_winners(active_players));
+        }
+
+        // Otherwise, check if the deck is empty
+        else if self.deck.is_empty() {
+            let winners = self.calculate_winners();
+            events.push(self.end_game_with_winners(winners));
+        }
+
+        // Otherwise, it's the next player's turn
+        else {
+            let next_player = self.next_player();
+            events.push(self.draw_and_give_card_to_player(next_player));
+            events.push(self.start_player_turn(next_player));
+        }
+
         Ok(events)
     }
 
@@ -350,14 +369,14 @@ impl Game {
         Event::DealCard { player_idx, card }
     }
 
-    /// Begin a player's turn
+    /// Begin a player's turn.
     fn start_player_turn(&mut self, player_idx: usize) -> Event {
         self.turn_counter = player_idx;
         self.players[player_idx].make_unprotected();
         Event::ReadyToPlay { player_idx }
     }
 
-    /// Discard the given player's hand
+    /// Discard the given player's hand.
     fn discard_hand(&mut self, target_idx: usize) -> Event {
         Event::DiscardCard { target_idx, card: self.players[target_idx].take_card().unwrap() }
     }
@@ -368,7 +387,13 @@ impl Game {
         Event::EliminatePlayer { player_idx }
     }
 
-    /// Reveal the final card from an eliminated player's hand
+    /// End the game with the given player as the winner.
+    fn end_game_with_winners(&mut self, winner_indices: Vec<usize>) -> Event {
+        self.state = GameState::Complete;
+        Event::GameOver { winner_indices }
+    }
+
+    /// Reveal the final card from an eliminated player's hand.
     fn reveal_eliminated_player_card(&mut self, player_idx: usize) -> Event {
         Event::RevealCard { player_idx, card: self.players[player_idx].take_card().unwrap() }
     }
@@ -382,6 +407,37 @@ impl Game {
         } else {
             unprotected_players.filter(|&idx| idx != player_idx).collect()
         }
+    }
+
+    /// Get the players who are still active in the game
+    fn active_players(&self) -> Vec<usize> {
+        (0..self.players.len()).filter(|&idx| self.players[idx].active()).collect()
+    }
+
+    /// Work out whose turn it should be next in the game
+    fn next_player(&self) -> usize {
+        let mut player_idx = (self.turn_counter + 1) % self.players.len();
+        while !self.players[player_idx].active() {
+            player_idx = (self.turn_counter + 1) % self.players.len();
+        }
+        player_idx
+    }
+
+    /// Given that the deck is empty but no player has won outright, determine the winners
+    fn calculate_winners(&self) -> Vec<usize> {
+
+        // Find the players who are still in the game
+        let active_players = self.active_players();
+
+        // Calculate each player's effective score, consisting of the card they hold and the total
+        // value of their discarded cards throughout the game
+        let mut scores = active_players.iter().map(|&idx| 
+            (self.players[idx].card().unwrap(), self.players[idx].value_of_discards(), idx)
+        ).collect::<Vec<_>>();
+
+        // Sort the scores and return each player who has the highest score
+        scores.sort(); let high_score = scores[0];
+        scores.iter().filter(|s| s.0 == high_score.0 && s.1 == high_score.1).map(|s| s.2).collect()
     }
 }
 

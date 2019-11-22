@@ -61,8 +61,16 @@ impl Player {
     /// Get the single card that this player is holding and remove it from their hand.
     pub fn take_card(&mut self) -> Option<Card> {
         let card = self.card();
-        if card.is_some() { self.hand.clear(); }
+        if let Some(card) = card { 
+            self.discards.push(card);
+            self.hand.clear();
+        }
         card
+    }
+
+    /// Get the total value of the cards this player has discarded
+    pub fn value_of_discards(&self) -> u32 {
+        self.discards.iter().map(|&c| c as u32).sum()
     }
 
     /// Check if this player is currently protected by a Handmaid.

@@ -67,6 +67,6 @@ pub enum Event {
     /// One of the players reveals their card after being eliminated.
     RevealCard { player_idx: usize, card: Card },
 
-    /// The game ends and the winner is announced.
-    GameOver { winner_idx: usize },
+    /// The game ends and the winners are announced.
+    GameOver { winner_indices: Vec<usize> },
 }
